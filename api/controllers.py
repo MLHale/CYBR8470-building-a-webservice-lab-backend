@@ -209,3 +209,70 @@ class ActivateIFTTT(APIView):
         newEvent.save()
         print 'New Event Logged'
         return Response({'success': True}, status=status.HTTP_200_OK)
+
+    class DogDetail(APIView):
+        permission_classes = (AllowAny,)
+        parser_classes = (parsers.JSONParser,parsers.FormParser)
+        renderer_classes = (renderers.JSONRenderer, )
+
+        def get(self, request, format=None):
+            dogdetail = DogDetail.objects.all()
+            json_data = serializers.serialize('json', dogdetail)
+            content = {'dogdetail': json_data}
+            return HttpResponse(json_data, content_type='json')
+
+
+        def delete(self, request, *args, **kwargs):
+            return self.destroy(request, *args, **kwargs)
+
+class DogList(APIView):
+        permission_classes = (AllowAny,)
+        parser_classes = (parsers.JSONParser,parsers.FormParser)
+        renderer_classes = (renderers.JSONRenderer, )
+
+        def get(self, request, format=None):
+            doglist = DogList.objects.all()
+            json_data = serializers.serialize('json', doglist)
+            content = {'doglist': json_data}
+            return HttpResponse(json_data, content_type='json')
+        def post(self, request, *args, **kwargs):
+            name = request.POST.get('name')
+            age = request.POST.get('age')
+            breed = request.POST.get('breed')
+            gender = request.POST.get('gender')
+            color = request.POST.get('color')
+            favoritefood = request.POST.get('favoritefood')
+            favoritetoy = request.POST.get('favoritetoy')
+class BreedDetail(APIView):
+        permission_classes = (AllowAny,)
+        parser_classes = (parsers.JSONParser,parsers.FormParser)
+        renderer_classes = (renderers.JSONRenderer, )
+
+        def get(self, request, format=None):
+            breeddetail = BreedDetail.objects.all()
+            json_data = serializers.serialize('json', breeddetail)
+            content = {'breeddetail': json_data}
+            return HttpResponse(json_data, content_type='json')
+
+
+        def delete(self, request, *args, **kwargs):
+                return self.destroy(request, *args, **kwargs)
+
+
+class BreedList(APIView):
+        permission_classes = (AllowAny,)
+        parser_classes = (parsers.JSONParser,parsers.FormParser)
+        renderer_classes = (renderers.JSONRenderer, )
+
+        def get(self, request, format=None):
+            breedlist = BreedList.objects.all()
+            json_data = serializers.serialize('json', breedlist)
+            content = {'breedlist': json_data}
+            return HttpResponse(json_data, content_type='json')
+        def post(self, request, *args, **kwargs):
+            name = request.POST.get('name')
+            size = request.POST.get('size')
+            friendliness = request.POST.get('friendliness')
+            trainability = request.POST.get('trainability')
+            sheddingamount = request.POST.get('sheddingamount')
+            exerciseneeds = request.POST.get('exerciseneeds')
