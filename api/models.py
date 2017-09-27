@@ -31,48 +31,20 @@ class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ('owner','key')
 
 class Dog(models.Model):
-        #name (a character string)
-        name = models.CharField(max_length=100)
-        #age (an integer)
-        age = models.IntegerField(max_length=2)
-        #breed (a foreign key to the Breed Model)
-        breed = models.ForeignKey('Breed')
-        #gender (a character string)
-        gender = models.CharField(max_length=1)
-        #color (a character string)
-        color = models.CharField(max_length=20)
-        #favoritefood (a character string)
-        favoritefood = models.CharField(max_length=30)
-        #favoritetoy (a character string)
-        favoritetoy = models.CharField(max_length=30)
-
-        def __str__(self):
-            return str(self.name)
-
-class Breed(models.Model):
-
-        #name (a character string)
-        name = models.CharField(max_length=100)
-        #size (a character string) [should accept Tiny, Small, Medium, Large]
-        TINY = 'TINY'
-        SMALL = 'SMALL'
-        MEDIUM = 'MEDIUM'
-        LARGE = 'LARGE'
-        SIZE_CHOICES = (
-            (TINY, 'Tiny'),
-            (SMALL, 'Small'),
-            (MEDIUM, 'Medium'),
-            (LARGE, 'Large'),
-        )
-        size = models.CharField(max_length=6, choices=SIZE_CHOICES)
-        #friendliness (an integer field) [should accept values from 1-5]
-        friendliness = models.IntegerField(max_length=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
-        #trainability (an integer field) [should accept values from 1-5]
-        trainability = models.IntegerField(max_length=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
-        #sheddingamount (an integer field) [should accept values from 1-5]
-        sheddingamount = models.IntegerField(max_length=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
-        #exerciseneeds (an integer field) [should accept values from 1-5]
-        exerciseneeds = models.IntegerField(max_length=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    #name (a character string)
+    name = models.CharField(max_length=100)
+    #age (an integer)
+    age = models.IntegerField(max_length=2)
+    #breed (a foreign key to the Breed Model)
+    breed = models.ForeignKey('Breed')
+    #gender (a character string)
+    gender = models.CharField(max_length=1)
+    #color (a character string)
+    color = models.CharField(max_length=20)
+    #favoritefood (a character string)
+    favoritefood = models.CharField(max_length=30)
+    #favoritetoy (a character string)
+    favoritetoy = models.CharField(max_length=30)
 
     def __str__(self):
-        return str(self.name) + str(self.size) + str(self.friendliness) + str(self.trainability) + str(self.sheddingamount) + str(self.exerciseneeds)
+        return str(self.name)
