@@ -29,3 +29,22 @@ class ApiKey(models.Model):
 
 class ApiKeyAdmin(admin.ModelAdmin):
     list_display = ('owner','key')
+
+class Dog(models.Model):
+    #name (a character string)
+    name = models.CharField(max_length=100)
+    #age (an integer)
+    age = models.IntegerField(max_length=2)
+    #breed (a foreign key to the Breed Model)
+    breed = models.ForeignKey('Breed')
+    #gender (a character string)
+    gender = models.CharField(max_length=1)
+    #color (a character string)
+    color = models.CharField(max_length=20)
+    #favoritefood (a character string)
+    favoritefood = models.CharField(max_length=30)
+    #favoritetoy (a character string)
+    favoritetoy = models.CharField(max_length=30)
+
+    def __str__(self):
+        return str(self.name)
