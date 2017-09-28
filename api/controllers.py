@@ -55,6 +55,115 @@ def xss_example(request):
   return render_to_response('dumb-test-app/index.html',
               {}, RequestContext(request))
 
+class DogList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.BrowsableAPIRenderer, )
+
+    def get(self, request, format=None):
+        dog = Dog.objects.all()
+        json_data = serializers.serialize('json', dog)
+        content = {'dog': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+
+    def post(self,request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+        name = request.data.get('name')
+        age = int(request.data.get('age'))
+        gender = request.data.get('gender')
+        color = request.data.get('color')
+        favoriteFood = request.data.get('favoriteFood')
+        favoriteToy = request.data.get('favoriteToy')
+        breed = request.data.get('breed')
+
+        newDog = Dog(
+            name=name,
+            gender=gender,
+            age=age,
+            color=color,
+            favoriteToy=favoriteToy,
+            favoriteFood=favoriteFood,
+            breed=breed
+        )
+        try:
+            newDog.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        newDog.save()
+
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+class DogDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        return Response({'status':1234})
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+class BreedList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        breed = Breed.objects.all()
+        json_data = serializers.serialize('json', breed)
+        content = {'breed': json_data}
+        return HttpResponse(json_data, content_type='json')
+        return Response({'status':4444})
+
+    def post(self,request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+        breedname = request.data.get('breedname')
+        size = request.data.get('size')
+        friendliness = request.data.get('friendliness')
+        trainability = request.data.get('trainability')
+        sheddingamount = request.data.get('sheddingamount')
+        exerciseneeds = request.data.get('exerciseneeds')
+
+        newBreed = Breed(
+        breedname=breedname,
+        size=size,
+        friendliness=friendliness,
+        trainability=trainability,
+        sheddingamount=sheddingamount,
+        exerciseneeds=exerciseneeds
+        )
+        try:
+            newBreed.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        newBreed.save()
+
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+class BreedDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        return Response({'status':4444})
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 class Register(APIView):
     permission_classes = (AllowAny,)
 
@@ -122,10 +231,83 @@ class Session(APIView):
 class Events(APIView):
     permission_classes = (AllowAny,)
     parser_classes = (parsers.JSONParser,parsers.FormParser)
-    renderer_classes = (renderers.JSONRenderer, )
+    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
 
+    def post(self, request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        eventtype = request.data.get('eventtype')
+        timestamp = int(request.data.get('timestamp'))
+        userid = request.data.get('userid')
+        requestor = request.META['REMOTE_ADDR']
+
+        newEvent = Event(
+            eventtype=eventtype,
+            timestamp=datetime.datetime.fromtimestamp(timestamp/1000, pytz.utc),
+            userid=userid,
+            requestor=requestor
+        )
+
+        try:
+            newEvent.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        newEvent.save()
+        print 'New Event Logged from: ' + requestor
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+    def get(self, request, format=None):
+        events = Event.objects.all()
+        json_data = serializers.serialize('json', events)
+        content = {'events': json_data}
+        return HttpResponse(json_data, content_type='json')
 
 class ActivateIFTTT(APIView):
     permission_classes = (AllowAny,)
     parser_classes = (parsers.JSONParser,parsers.FormParser)
     renderer_classes = (renderers.JSONRenderer, )
+
+    def post(self,request):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        eventtype = request.data.get('eventtype')
+        timestamp = int(request.data.get('timestamp'))
+        requestor = request.META['REMOTE_ADDR']
+        api_key = ApiKey.objects.all().first()
+        event_hook = "test"
+
+        print "Creating New event"
+
+        newEvent = Event(
+            eventtype=eventtype,
+            timestamp=datetime.datetime.fromtimestamp(timestamp/1000, pytz.utc),
+            userid=str(api_key.owner),
+            requestor=requestor
+        )
+
+        print newEvent
+        print "Sending Device Event to IFTTT hook: " + str(event_hook)
+
+        #send the new event to IFTTT and print the result
+        event_req = requests.post('https://maker.ifttt.com/trigger/'+str(event_hook)+'/with/key/'+api_key.key, data= {
+            'value1' : timestamp,
+            'value2':  "\""+str(eventtype)+"\"",
+            'value3' : "\""+str(requestor)+"\""
+        })
+        print event_req.text
+
+        #check that the event is safe to store in the databse
+        try:
+            newEvent.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        #log the event in the DB
+        newEvent.save()
+        print 'New Event Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
